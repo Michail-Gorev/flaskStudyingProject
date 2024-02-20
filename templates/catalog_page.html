@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}Каталог домов{% endblock %}
+{% block content %}
+    {% for i in range(1,10) %}
+        <div class="thumbnail">
+            <div id="{{ i }}" align="center">
+                <div class="container-fluid">
+                    <h4>
+                        Здесь будет описание дома номер {{ i }}
+                    </h4>
+                    <img src="/static/default_picture.jpg" width="200" height="300">
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

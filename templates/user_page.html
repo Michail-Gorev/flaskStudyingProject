@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+    {% if request.cookies.get('username') == 'error' %}
+        <h1 style="background: black; color: red; font-variant-caps: titling-caps" align="center">Введите корректный (не тестовый) ник</h1>
+    {% else %}
+        <h1 align="center">Hello, {{ request.cookies.get('username') }} </h1>
+    {% endif %}
+{% endblock %}

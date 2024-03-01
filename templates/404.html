@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+    <div id="404_error_div" align="center">
+        <h1>Страница не найдена</h1>
+        <p>Того, что вы ищете, здесь не нашлось:(.
+        <p><a href="{{ url_for('index') }}">Вернуться на главную!</a>
+    </div>
+{% endblock %}

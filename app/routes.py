@@ -8,6 +8,16 @@ from flask import make_response
 import app.constants
 
 
+@first_app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@first_app.errorhandler(403)
+def user_not_registered(e):
+    return render_template('403.html'), 403
+
+
 @first_app.route('/')
 def index():
     if request.headers.get('User-Agent') == constants.MOZILLA_FULL_SPEC:
@@ -38,4 +48,7 @@ def show_catalog():
 
 @first_app.route("/profile/", methods=['GET', 'POST'])
 def show_profile():
-    return render_template('user_page.html')
+    if request.cookies.get('username') is None:
+        return user_not_registered(403)
+    else:
+        return render_template('user_page.html')

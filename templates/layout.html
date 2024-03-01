@@ -6,16 +6,8 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    <nav class="sticky-top">
-      <a href="/">Главная</a>
-      <a href="/catalog/">Каталог домов</a>
-      <a href="/map/">Интерактивная карта</a>
-      <a href="/about/">О проекте</a>
-      <a href="/profile/">Профиль</a>
-      <div id="indicator"></div>
-    </nav>
+    {% include 'header.html' %}
     {% block content %}
     {% endblock %}
-
 </body>
 </html>

@@ -2,8 +2,9 @@ import random
 
 from app import constants
 from main import first_app
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for, session
 from flask import make_response
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import app.constants
 
@@ -51,14 +52,26 @@ def show_catalog():
     return render_template("catalog_page.html")
 
 
-@first_app.route('/login/')
+@first_app.route('/login/', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        session['password'] = generate_password_hash(request.form['password'])
+        session['email'] = request.form['email']
+        session['gender'] = request.form['gender']
+        return redirect(url_for('index'))
     return render_template("login.html")
+
+
+@first_app.route('/logout/')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
 
 
 @first_app.route("/profile/", methods=['GET', 'POST'])
 def show_profile():
-    if request.cookies.get('username') is None:
+    if 'username' not in session:
         return user_not_registered(403)
     else:
         return render_template('user_page.html')

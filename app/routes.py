@@ -51,6 +51,11 @@ def show_catalog():
     return render_template("catalog_page.html")
 
 
+@first_app.route('/login/')
+def login():
+    return render_template("login.html")
+
+
 @first_app.route("/profile/", methods=['GET', 'POST'])
 def show_profile():
     if request.cookies.get('username') is None:

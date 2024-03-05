@@ -1,6 +1,7 @@
 import random
 
 from app import constants
+from app.forms import RegistrationForm
 from main import first_app
 from flask import render_template, request, redirect, url_for, session
 from flask import make_response
@@ -54,13 +55,14 @@ def show_catalog():
 
 @first_app.route('/login/', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
+    form = RegistrationForm(request.form)
+    if request.method == 'POST' and form.validate():
         session['username'] = request.form['username']
         session['password'] = generate_password_hash(request.form['password'])
         session['email'] = request.form['email']
         session['gender'] = request.form['gender']
         return redirect(url_for('index'))
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 
 @first_app.route('/logout/')

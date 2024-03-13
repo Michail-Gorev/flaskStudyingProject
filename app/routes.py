@@ -62,7 +62,7 @@ def login():
         session['email'] = request.form['email']
         session['gender'] = request.form['gender']
         return redirect(url_for('index'))
-    return render_template("login.html", form=form)
+    return render_template("registration.html", form=form)
 
 
 @first_app.route('/logout/')

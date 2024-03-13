@@ -1,0 +1,6 @@
+VALID_NAME = 'autotest_user'
+VALID_PASSWORD = 'autotestQAZ1*'
+VALID_EMAIL = 'autotest@auto.test'
+MALE_GENDER = 'Мужской'
+FEMALE_GENDER = 'Женский'
+THIRD_GENDER = 'Attack helicopter'

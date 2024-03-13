@@ -43,10 +43,10 @@
             <input type="password" class="form-control" id="inputPassword" placeholder="Повторите пароль"
                    {{ form.confirm() }}
         </div>
-        <div class="form-control">
-            <label for="genderSelect">Пол</label>
-            <select class="form-control" id="genderSelect" {{ form.gender() }}
-        </div>
+        {{ form.gender.label }}
+        <select class="form-control" id="genderSelect" {{ form.gender() }}
+        <p></p>
         <button type="submit" class="btn btn-success">Зарегистрироваться</button>
     </form>
+
 {% endblock %}

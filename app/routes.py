@@ -1,14 +1,14 @@
 import random
 import sqlite3
 
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from app import constants
 from app.FDataBase import FDataBase
 from app.UserLogin import UserLogin
 from app.forms import RegistrationForm
 from main import first_app
-from flask import render_template, request, redirect, url_for, session, g
+from flask import render_template, request, redirect, url_for, session, g, flash
 from flask import make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 import app.constants
@@ -112,14 +112,14 @@ def show_catalog():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-        session['username'] = request.form['username']
-        session['password'] = generate_password_hash(request.form['password'])
-        session['email'] = request.form['email']
-        session['gender'] = request.form['gender']
         res = dbase.addUser(request.form['username'], request.form['email'],
                             generate_password_hash(request.form['password']), request.form['gender'])
-        if res:
-            return redirect(url_for('show_profile'))
+        if res == True:
+            return redirect(url_for('login'))
+        elif res == "not_unique_email":
+            flash("На этот адрес уже зарегистрирован пользователь")
+        elif res == "not_unique_username":
+            flash("Этот ник уже занят")
     return render_template("registration.html", form=form)
 
 
@@ -135,13 +135,18 @@ def login():
 
 
 @first_app.route('/logout/')
+@login_required
 def logout():
-    session.pop('username', None)
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @first_app.route("/profile/", methods=['GET', 'POST'])
 @login_required
 def show_profile():
-    return render_template('user_page.html')
+    user = {
+        'username': current_user.get_username(),
+        'email': current_user.get_email(),
+        'gender': current_user.get_gender(),
+    }
+    return render_template('user_page.html', user=user)

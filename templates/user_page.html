@@ -17,7 +17,7 @@
                                                 <img src="https://img.icons8.com/bubbles/100/000000/user.png"
                                                      class="img-radius" alt="User-Profile-Image"/>
                                             </div>
-                                            <h6 class="f-w-600">{{ session['username'] }}</h6>
+                                            <h6 class="text-muted f-w-400 justify-content-center">{{ user['username'] }}</h6>
                                             <p>Пользователь</p>
                                             <div id={'profile_buttons'} class={'m-lg-2'}>
                                                 <button class="btn btn-dark"><a class="btn-link" href="/logout/">Выйти</a></button>
@@ -31,11 +31,11 @@
                                             <div class="row">
                                                 <div class="col-sm-6">
                                                     <p class="m-b-10 f-w-600">Email</p>
-                                                    <h6 class="text-muted f-w-400 justify-content-center">{{ session['email'] }}</h6>
+                                                    <h6 class="text-muted f-w-400 justify-content-center">{{ user['email'] }}</h6>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <p class="m-b-10 f-w-600">Пол</p>
-                                                    <h6 class="text-muted f-w-400">{{ session['gender'] }}</h6>
+                                                    <h6 class="text-muted f-w-400">{{ user['gender'] }}</h6>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <p class="m-b-10 f-w-600">Дата регистрации</p>

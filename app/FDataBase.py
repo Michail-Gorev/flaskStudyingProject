@@ -1,5 +1,7 @@
 import sqlite3
 
+from flask import flash
+
 
 class FDataBase:
     def __init__(self, db):
@@ -27,13 +29,17 @@ class FDataBase:
         return []
 
     def addUser(self, username, email, pass_hash, gender):
+        unique_email = True
         try:
             self.__cursor.execute(f"SELECT COUNT() as `count` FROM user WHERE email LIKE '{email}'")
-            res = self.__cursor.fetchone()
-            if res['count'] > 0:
-                print("Пользователь с таким email уже сущесвтует")
-                return False
-
+            res1 = self.__cursor.fetchone()
+            self.__cursor.execute(f"SELECT COUNT() as `count` FROM user WHERE username LIKE '{username}'")
+            res2 = self.__cursor.fetchone()
+            if res1['count'] > 0:
+                print("Пользователь с таким email уже существует")
+                return "not_unique_email"
+            elif res2['count'] > 0:
+                return "not_unique_username"
             self.__cursor.execute("INSERT INTO user VALUES(NULL, ?, ?, ?, ?)", (username, email, pass_hash, gender))
             self.__db.commit()
         except sqlite3.Error as e:
@@ -53,7 +59,6 @@ class FDataBase:
         except sqlite3.Error as e:
             print(str(e))
         return False
-
 
     def getUserByUsername(self, username):
         try:

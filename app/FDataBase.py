@@ -1,7 +1,5 @@
 import sqlite3
 
-from flask import flash
-
 
 class FDataBase:
     def __init__(self, db):

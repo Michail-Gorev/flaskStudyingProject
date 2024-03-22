@@ -8,10 +8,13 @@ from app.FDataBase import FDataBase
 from app.UserLogin import UserLogin
 from app.forms import RegistrationForm
 from main import first_app
-from flask import render_template, request, redirect, url_for, session, g, flash
+from flask import render_template, request, redirect, url_for, g, flash
 from flask import make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 import app.constants
+from flask_mail import Mail, Message
+
+
 
 login_manager = LoginManager(first_app)
 
@@ -22,6 +25,8 @@ def load_user(user_id):
 
 
 dbase = None
+mail = Mail(first_app)
+
 
 
 @first_app.before_request
@@ -101,6 +106,15 @@ def set_user(name):
         resp = make_response(render_template('home_page.html'))
         resp.set_cookie('username', name)
     return resp
+
+
+@first_app.route('/profile/send_prospect/<email>')
+def send_prospect(email):
+    msg = Message("Test", recipients=[email])
+    msg.html = render_template('message.html')
+    mail.send(msg)
+    return redirect(url_for('show_profile'))
+
 
 
 @first_app.route('/catalog/')

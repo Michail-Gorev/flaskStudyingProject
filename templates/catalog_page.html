@@ -1,14 +1,17 @@
 {% extends "layout.html" %}
 {% block title %}Каталог домов{% endblock %}
 {% block content %}
-    {% for i in range(1,10) %}
+    {% for b in buildings %}
         <div class="thumbnail">
-            <div id="{{ i }}" align="center">
+            <div id="{{ b.id }}" align="center">
                 <div class="container-fluid">
+                    <h3>
+                        {{ b.building_name }}
+                    </h3>
                     <h4>
-                        Здесь будет описание дома номер {{ i }}
+                        {{ b.description }}
                     </h4>
-                    <img src="/static/default_picture.jpg" width="200" height="300">
+                    <img src= "{{ b.pic_url }}" width="200" height="300">
                 </div>
             </div>
         </div>

@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}Авторизация{% endblock %}
+{% block content %}
+    <form action="/login/" method="post">
+        <div class="form-group align-items-center">
+            <input class = "form-control" placeholder="Введите ник" name="username"/>
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="inputPassword" placeholder="Введите пароль" name="password"/>
+        </div>
+        <button type="submit" class="btn btn-success">Войти</button>
+    </form>
+
+{% endblock %}

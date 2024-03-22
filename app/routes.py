@@ -1,13 +1,64 @@
 import random
+import sqlite3
+
+from flask_login import LoginManager, login_user, logout_user, login_required
 
 from app import constants
+from app.FDataBase import FDataBase
+from app.UserLogin import UserLogin
 from app.forms import RegistrationForm
 from main import first_app
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session, g
 from flask import make_response
 from werkzeug.security import generate_password_hash, check_password_hash
-
 import app.constants
+
+login_manager = LoginManager(first_app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return UserLogin().fromDB(user_id, dbase)
+
+
+dbase = None
+
+
+@first_app.before_request
+def before_all():
+    global dbase
+    db = get_db()
+    dbase = FDataBase(db)
+
+
+def connect_db():
+    connection = sqlite3.connect(first_app.config['DATABASE'])
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def create_db():
+    '''Создание таблицы пользователей данных с помощью выполнения запроса, лежащего в SQL-файле
+    Запрос выполняется при условии, что таблица не существует '''
+    db = connect_db()
+    with first_app.open_resource('sq_db.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+    db.close()
+
+
+def get_db():
+    '''Соединение с БД'''
+    if not hasattr(g, 'link_db'):
+        g.link_db = connect_db()
+    return g.link_db
+
+
+@first_app.teardown_appcontext
+def close_db(e):
+    '''Закрытие БД'''
+    if hasattr(g, 'link_db'):
+        g.link_db.close()
 
 
 @first_app.errorhandler(500)
@@ -23,6 +74,10 @@ def page_not_found(e):
 @first_app.errorhandler(403)
 def user_not_registered(e):
     return render_template('403.html'), 403
+
+@first_app.errorhandler(401)
+def user_not_registered(e):
+    return render_template('401.html'), 401
 
 
 @first_app.route('/')
@@ -50,30 +105,43 @@ def set_user(name):
 
 @first_app.route('/catalog/')
 def show_catalog():
-    return render_template("catalog_page.html")
+    return render_template("catalog_page.html", buildings=dbase.getBuildings())
 
 
-@first_app.route('/login/', methods=['GET', 'POST'])
-def login():
+@first_app.route('/register/', methods=['GET', 'POST'])
+def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
         session['username'] = request.form['username']
         session['password'] = generate_password_hash(request.form['password'])
         session['email'] = request.form['email']
         session['gender'] = request.form['gender']
-        return redirect(url_for('index'))
+        res = dbase.addUser(request.form['username'], request.form['email'],
+                            generate_password_hash(request.form['password']), request.form['gender'])
+        if res:
+            return redirect(url_for('show_profile'))
     return render_template("registration.html", form=form)
+
+
+@first_app.route('/login/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = dbase.getUserByUsername(request.form['username'])
+        if user and check_password_hash(user['pass_hash'], request.form['password']):
+            userlogin = UserLogin().create(user)
+            login_user(userlogin)
+            return redirect(url_for('show_profile'))
+    return render_template("login.html")
 
 
 @first_app.route('/logout/')
 def logout():
     session.pop('username', None)
+    logout_user()
     return redirect(url_for('index'))
 
 
 @first_app.route("/profile/", methods=['GET', 'POST'])
+@login_required
 def show_profile():
-    if 'username' not in session:
-        return user_not_registered(403)
-    else:
-        return render_template('user_page.html')
+    return render_template('user_page.html')

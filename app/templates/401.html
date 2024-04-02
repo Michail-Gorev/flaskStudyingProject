@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}Restricted{% endblock %}
+{% block content %}
+    <div id="403_error_div" align="center">
+        <h1>Отказано в доступе</h1>
+        <p>Для просмотре профиля необходимо авторизоваться в системе
+        <div id="buttons container" class="container" align="center">
+            <button class="btn btn-success">
+                <a id="login_btn" data-testid="login_btn" class="btn link-dark" href="/login/">Войти</a></button>
+            <button class="btn btn-light"><a id="reg_link" data-testid="reg_link" class="btn link-dark" href="/register/">
+                Зарегистрироваться</a></button>
+        </div>
+        <p><a href="{{ url_for('main.index') }}">На главную</a>
+    </div>
+{% endblock %}

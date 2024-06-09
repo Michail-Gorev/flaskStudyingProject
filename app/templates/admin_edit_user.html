@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block title %}Редактировать информацию о пользователе{% endblock %}
+{% block content %}
+{{ super() }}
+    <div class="navbar-light">
+        <div class="nav-items-wrapper ml-md-5 mt-5 mb-5 mr-5">
+            <div class="nav-item">
+                <button class="btn btn-dark"><a class="link-secondary" href="/admin/users/">Пользователи</a></button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+            <div class="row justify-content-center">
+                <div class="col6 text-center">
+                    <table class="table-bordered table-striped justify-content-center">
+                    <tr>
+                        <th>
+                            Ник пользователя
+                        </th>
+                        <th>
+                            Email
+                        </th>
+                        <th>
+                            Пол
+                        </th>
+                        <th>
+                            Роль
+                        </th>
+                        <th>
+                            Email подтверждён
+                        </th>
+                    </tr>
+                        <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.gender }}</td>
+                                <td>
+                                    {% if user.role_id == 2 %}
+                                        Админ
+                                    {% else %}
+                                        Читатель
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_confirmed == 1 %}
+                                        Да
+                                    {% else %}
+                                        Нет
+                                    {% endif %}
+                                </td>
+                            </tr>
+                    </table>
+                <form action="/admin/edit/update" method="post">
+                    <div class="form-group align-items-center">
+                        <label for="field_to_change" class="label-success mt-3">Заменяемый параметр</label>
+                        <select id="field_to_change" class = "form-control mt-2" name="field_to_change">
+                            <option value="email" name="username">Email</option>
+                            <option value="gender" name="gender">Пол</option>
+                            <option value="is_confirmed" name="is_confirmed">Почта подтверждена</option>
+                            <option value="role_id" name="role_id">ID Роли</option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="inputNewValue" placeholder="Новое значение" name="new_value"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="inputNewValue" placeholder="Ник" name="username" value="{{ user.username }}"/>
+                    </div>
+                    <button type="submit" class="btn btn-success">Обновить</button>
+                </form>
+                </div>
+            </div>
+    </div>
+{% endblock %}

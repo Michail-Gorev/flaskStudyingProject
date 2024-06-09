@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block title %}Пользователи{% endblock %}
+{% block content %}
+{{ super() }}
+    <div class="navbar-light">
+        <div class="nav-items-wrapper ml-md-5 mt-5 mb-5 mr-5">
+            <div class="nav-item">
+                <button class="btn btn-dark"><a class="link-secondary" href="/admin/users/">Пользователи</a></button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+            <div class="row justify-content-center">
+                <div class="col6 text-center">
+                    <table class="table-bordered table-striped justify-content-center">
+                    <tr>
+                        <th>
+                            Ник пользователя
+                        </th>
+                        <th>
+                            Email
+                        </th>
+                        <th>
+                            Пол
+                        </th>
+                        <th>
+                            Роль
+                        </th>
+                        <th>
+                            Email подтверждён
+                        </th>
+                        <th>
+                            Действия
+                        </th>
+                    </tr>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.gender }}</td>
+                                <td>
+                                    {% if user.role_id == 2 %}
+                                        Админ
+                                    {% else %}
+                                        Читатель
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_confirmed == 1 %}
+                                        Да
+                                    {% else %}
+                                        Нет
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-light"><a class="btn-link link-dark" href="/admin/edit/{{ user.username }}">Редактировать</a></button>
+                                    <button class="btn btn-danger"><a class="btn-link link-dark" href="/admin/delete/{{ user.username }}">Удалить</a></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+    </div>
+{% endblock %}

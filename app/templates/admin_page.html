@@ -1,1 +1,18 @@
-<H1 align="center">Эта страница доступна только админам. Если Вы здесь, то Вы - админ!</H1>
+{% extends "layout.html" %}
+{% block title %}Панель администратора{% endblock %}
+{% block content %}
+{{ super() }}
+    <div class="navbar-light">
+        <div class="nav-items-wrapper ml-md-5 mt-5 mb-5 mr-5">
+            <div class="nav-item">
+                <button class="btn btn-dark"><a class="link-secondary" href="/admin/users/">Пользователи</a></button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+            <div class="row justify-content-center">
+                <div class="col6 text-center">
+                </div>
+            </div>
+    </div>
+{% endblock %}

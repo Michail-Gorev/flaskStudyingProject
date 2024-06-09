@@ -92,3 +92,26 @@ class FDataBase:
         except sqlite3.Error as e:
             print(str(e))
         return False
+
+    def deleteUser(self, username):
+        try:
+            conn = sqlite3.connect(r"C:\Users\Михаил\Desktop\flaskStudyingProject\app\flask_app.db")
+            cur = conn.cursor()
+            cur.execute(f"DELETE FROM user where username = '{username}'")
+            conn.commit()
+        except sqlite3.Error as e:
+            print(str(e))
+        return False
+
+    def editUser(self, field_to_change, new_value, username):
+        try:
+            conn = sqlite3.connect(r"C:\Users\Михаил\Desktop\flaskStudyingProject\app\flask_app.db")
+            cur = conn.cursor()
+            if field_to_change == 'is_confirmed' or field_to_change == 'role_id':
+                cur.execute(f"UPDATE user SET {field_to_change} = {new_value} where username = '{username}'")
+            else:
+                cur.execute(f"UPDATE user SET {field_to_change} = '{new_value}' where username = '{username}'")
+            conn.commit()
+        except sqlite3.Error as e:
+            print(str(e))
+        return False

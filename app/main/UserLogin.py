@@ -22,3 +22,9 @@ class UserLogin(UserMixin):
 
     def get_gender(self):
         return str(self.__user['gender'])
+
+    def get_is_confirmed(self):
+        return str(self.__user['is_confirmed'])
+
+    def get_role_id(self):
+        return str(self.__user['role_id'])

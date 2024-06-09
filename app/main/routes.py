@@ -1,7 +1,8 @@
 import random
 import sqlite3
 
-from flask import render_template, redirect, url_for, request, flash, make_response, g, current_app
+import jwt
+from flask import render_template, redirect, url_for, request, flash, make_response, g, current_app, jsonify
 from flask_login import logout_user, login_required, login_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -11,6 +12,9 @@ from .UserLogin import UserLogin
 from .forms import RegistrationForm
 from .. import mail, login_manager
 from flask_mail import Message
+
+private_key = open('private.pem').read()
+public_key = open('public.pem').read()
 
 
 @login_manager.user_loader
@@ -58,6 +62,20 @@ def close_db(e):
         g.link_db.close()
 
 
+@main.before_request
+def before_request():
+    g.user = None
+    if 'username' in request.cookies:
+        username = request.cookies['username']
+        print(username)
+        cursor = get_db().cursor()
+        cursor.execute(f"SELECT * FROM user WHERE username = '{username}'")
+        user = cursor.fetchone()
+        cursor.close()
+        g.user = user
+        print(g.user['role_id'])
+
+
 @main.route('/')
 def index():
     if request.headers.get('User-Agent') == constants.MOZILLA_FULL_SPEC:
@@ -98,10 +116,18 @@ def show_catalog():
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
+        email = request.form['email']
         res = dbase.addUser(request.form['username'], request.form['email'],
-                            generate_password_hash(request.form['password']), request.form['gender'])
-        if res:
-            return redirect(url_for('main.login'))
+                            generate_password_hash(request.form['password']), request.form['gender'], 0)
+        if res == True:
+            token = jwt.encode({'email': email}, private_key, algorithm='RS256')
+            data = {
+                'token': token
+            }
+            msg = Message("Test", recipients=[email])
+            msg.html = render_template('confirm.html', data=data)
+            mail.send(msg)
+            return jsonify({'success': True, 'message': 'Регистрация успешна. Проверьте свою почту для подтверждения.'})
         elif res == "not_unique_email":
             flash("На этот адрес уже зарегистрирован пользователь")
         elif res == "not_unique_username":
@@ -109,14 +135,30 @@ def register():
     return render_template("registration.html", form=form)
 
 
+@main.route('/register/confirm/<token>')
+def confirm_registration(token):
+    try:
+        # Проверьте и подтвердите токен JWT
+        payload = jwt.decode(token, public_key, algorithms=['RS256'])
+        email = payload['email']
+
+        # Найдите и активируйте пользователя по email
+        dbase.confirmUserByEmail(email)
+        return redirect(url_for('main.login'))
+    except jwt.exceptions.InvalidTokenError:
+        return jsonify({'error': 'Недействительный токен'}), 401
+
+
 @main.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         user = dbase.getUserByUsername(request.form['username'])
-        if user and check_password_hash(user['pass_hash'], request.form['password']):
+        if user and check_password_hash(user['pass_hash'], request.form['password']) and user['is_confirmed'] == 1:
             userlogin = UserLogin().create(user)
             login_user(userlogin)
-            return redirect(url_for('main.show_profile'))
+            resp = make_response(redirect(url_for('main.show_profile')))
+            resp.set_cookie('username', user['username'])
+            return resp
     return render_template("login.html")
 
 
@@ -134,5 +176,18 @@ def show_profile():
         'username': current_user.get_username(),
         'email': current_user.get_email(),
         'gender': current_user.get_gender(),
+        'is_confirmed': current_user.get_is_confirmed(),
+        'role_id': current_user.get_role_id(),
     }
-    return render_template('user_page.html', user=user)
+    if not int(current_user.get_is_confirmed()) == 1:
+        return render_template('401.html'), 401
+    else:
+        return render_template('user_page.html', user=user)
+
+
+@main.route("/admin/")
+def admin_page():
+    if g.user is not None and g.user['role_id'] == 1:
+        return render_template('401.html'), 401
+    else:
+        return render_template('admin_page.html')
